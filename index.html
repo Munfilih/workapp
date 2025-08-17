@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Login</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 400px;
+      margin: 50px auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 0 8px #ccc;
+      text-align: center;
+    }
+    input {
+      padding: 10px;
+      font-size: 1em;
+      width: 100%;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+      width: 100%;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    #message {
+      margin-top: 15px;
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Admin Login</h2>
+
+  <input id="pin" type="password" placeholder="Enter your PIN" autocomplete="off" />
+  <button onclick="login()">Login</button>
+
+  <div id="message"></div>
+
+  <script>
+    // Initialize Supabase client
+    const supabaseUrl = 'https://ornuhpjnbkiguivnwoir.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ybnVocGpuYmtpZ3Vpdm53b2lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0MjU5NTYsImV4cCI6MjA3MTAwMTk1Nn0.yY8Fy1GH1ZoHRG5Ak6GGMUXkdt2AAkRwR5omt1fXKmk';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    // If already logged in, redirect to dashboard
+    if (localStorage.getItem('adminLoggedIn') === 'true') {
+      window.location.href = 'dashboard.html';
+    }
+
+    async function login() {
+      const pin = document.getElementById('pin').value.trim();
+      const msg = document.getElementById('message');
+      msg.textContent = '';
+
+      if (!pin) {
+        msg.textContent = 'Please enter the PIN.';
+        return;
+      }
+
+      // Query Supabase to check if PIN is valid
+      const { data, error } = await supabase
+        .from('admin')
+        .select('pin_code')
+        .eq('pin_code', pin)
+        .limit(1)
+        .single();
+
+      if (error || !data) {
+        msg.textContent = 'Invalid PIN. Try again.';
+        return;
+      }
+
+      // Valid PIN - store login status and redirect
+      localStorage.setItem('adminLoggedIn', 'true');
+      window.location.href = 'dashboard.html';
+    }
+  </script>
+</body>
+</html>
